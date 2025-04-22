@@ -9,10 +9,9 @@ class SparseMatrix:
     def add(self, i, j, value):
         """Добавить элемент в матрицу (i, j)"""
         # Индексация строк и столбцов с 1
-        value = int(value)
         if value != 0:
-            self.values.append(value)
-            self.columns.append(j - 1)  # Индексация столбцов с 0
+            self.values.append(float(value)) 
+            self.columns.append(j - 1)
             self.row_pointer[i] += 1
 
     def build(self):
@@ -41,10 +40,9 @@ class SparseMatrix:
         end = self.row_pointer[i]
         for k in range(start, end):
             if k >= len(self.columns):
-                # Защита от выхода за границы
                 break
             if self.columns[k] == j - 1:
-                return int(self.values[k])
+                return self.values[k]  
         return 0
 
     def __str__(self):
@@ -208,24 +206,24 @@ class SparseMatrix:
         result.columns = self.columns.copy()
         result.row_pointer = self.row_pointer.copy()
         return result    
-        
+            
     def remove(self, i, j):
         """Удалить элемент из матрицы (i, j)"""
         row_start = self.row_pointer[i-1]
         row_end = self.row_pointer[i]
+        
+        # Ищем индекс элемента для удаления
+        index_to_remove = None
         for k in range(row_start, row_end):
             if self.columns[k] == j-1:
-                # Удаляем элемент
-                self.values.pop(k)
-                self.columns.pop(k)
-                
-                # Обновляем указатели
-                for l in range(i, self.n+1):
-                    self.row_pointer[l] -= 1
-                return
-
-    def clear(self):
-        """Очистить матрицу"""
-        self.values = []
-        self.columns = []
-        self.row_pointer = [0] * (self.n + 1)
+                index_to_remove = k
+                break
+        
+        if index_to_remove is not None:
+            # Удаляем элемент
+            self.values.pop(index_to_remove)
+            self.columns.pop(index_to_remove)
+            
+            # Перестраиваем указатели row_pointer
+            for l in range(i, self.n+1):
+                self.row_pointer[l] -= 1
