@@ -40,6 +40,9 @@ class SparseMatrix:
         start = self.row_pointer[i - 1]
         end = self.row_pointer[i]
         for k in range(start, end):
+            if k >= len(self.columns):
+                # Защита от выхода за границы
+                break
             if self.columns[k] == j - 1:
                 return int(self.values[k])
         return 0
@@ -197,3 +200,32 @@ class SparseMatrix:
             return "Да"
         else:
             return "Нет"
+
+    def copy(self):
+        """Создает копию матрицы"""
+        result = SparseMatrix(self.n, self.m)
+        result.values = self.values.copy()
+        result.columns = self.columns.copy()
+        result.row_pointer = self.row_pointer.copy()
+        return result    
+        
+    def remove(self, i, j):
+        """Удалить элемент из матрицы (i, j)"""
+        row_start = self.row_pointer[i-1]
+        row_end = self.row_pointer[i]
+        for k in range(row_start, row_end):
+            if self.columns[k] == j-1:
+                # Удаляем элемент
+                self.values.pop(k)
+                self.columns.pop(k)
+                
+                # Обновляем указатели
+                for l in range(i, self.n+1):
+                    self.row_pointer[l] -= 1
+                return
+
+    def clear(self):
+        """Очистить матрицу"""
+        self.values = []
+        self.columns = []
+        self.row_pointer = [0] * (self.n + 1)
